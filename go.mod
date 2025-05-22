@@ -1,4 +1,4 @@
-module gdatasync
+module gitbub.com/duiyuan/gdatasync
 
 go 1.22.3
 

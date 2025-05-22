@@ -1,4 +1,4 @@
-package pkg
+package conf
 
 const (
 	WSServerUrl = "ws://106.53.79.131:61221/api"
