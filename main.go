@@ -3,6 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 
 	. "gitbub.com/duiyuan/gdatasync/pkg"
 	subscriber "gitbub.com/duiyuan/gdatasync/pkg/subscriber"
@@ -10,6 +14,7 @@ import (
 
 var txnSubscriber *subscriber.Subscriber
 var memSubscriber *subscriber.Subscriber
+var wg sync.WaitGroup
 
 func handleTxMsg(msg []byte) {
 	txn := &TxnSum{}
@@ -27,15 +32,27 @@ func handleTxMsg(msg []byte) {
 }
 
 func handleMemMsg(msg []byte) {
-
+	memSubscriber.Logger.Println("f")
 }
 
 func main() {
-	txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head")
-	txnSubscriber.SetHandler(handleTxMsg)
-	txnSubscriber.Connect()
+	ch := make(chan bool, 2)
+	// txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
+	// txnSubscriber.SetHandler(handleTxMsg)
+	// go txnSubscriber.Connect()
 
-	// memSubscriber = subscriber.NewSubscriber("mempool_insert")
-	// memSubscriber.SetHandler(handleMemMsg)
-	// memSubscriber.Connect()
+	memSubscriber = subscriber.NewSubscriber("mempool_insert", ch)
+	memSubscriber.SetHandler(handleMemMsg)
+	go memSubscriber.Connect()
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
+
+	select {
+	case <-interrupt:
+		txnSubscriber.Cancel()
+		memSubscriber.Cancel()
+		return
+	}
+
 }

@@ -1,6 +1,7 @@
 package subscriber
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"os"
@@ -22,11 +23,18 @@ type Subscriber struct {
 	Subscription string
 	Logger       *log.Logger
 	HandleMsg    func(msg []byte)
+	ctx          context.Context
+	Cancel       context.CancelFunc
+	Finished     chan bool
 }
 
-func NewSubscriber(subscription string) *Subscriber {
+func NewSubscriber(subscription string, finished chan bool) *Subscriber {
+	ctx, cancel := context.WithCancel(context.Background())
 	return &Subscriber{
 		Subscription: subscription,
+		ctx:          ctx,
+		Cancel:       cancel,
+		Finished:     finished,
 	}
 }
 
@@ -71,7 +79,6 @@ func (t *Subscriber) Connect() {
 	t.Logger.Println("sent subscribe message")
 
 	done := make(chan bool)
-
 	go func() {
 		defer close(done)
 		for {
@@ -85,12 +92,12 @@ func (t *Subscriber) Connect() {
 	}()
 
 	select {
-	case <-interrupt:
-		t.Logger.Println("got interrupt signal, now exit")
+	case <-t.ctx.Done():
+		t.Logger.Println("got context.done, now exit")
 	case <-done:
 		t.Logger.Println("close server")
+		t.Finished <- true
 	}
-
 	if err = conn.WriteMessage(CloseMessage, websocket.FormatCloseMessage(CloseAbnormalClosure, "")); err != nil {
 		t.Logger.Printf("fail to close websocket %v\n", err)
 	}
