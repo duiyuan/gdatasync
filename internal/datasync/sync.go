@@ -32,7 +32,14 @@ func handleTxMsg(msg []byte) {
 }
 
 func handleMemMsg(msg []byte) {
-	memSubscriber.Logger.Println("f")
+	var data interface{}
+
+	if err := json.Unmarshal(msg, &data); err != nil {
+		memSubscriber.Logger.Fatal(err)
+		return
+	}
+
+	memSubscriber.Logger.Println(string(msg))
 }
 
 func Start() {

@@ -23,6 +23,15 @@ go.work.sum
 
 # env file
 .env
-debug
 *.log
+
+
+*.exe
+*.bin
+*.app
+*.dll
+*.so
+
+debug
 gdatasync
+godemo

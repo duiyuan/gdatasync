@@ -12,6 +12,15 @@
       "program": "${workspaceFolder}/cmd/datasync/main.go",
       "args": [],
       "output": "debug"
+    },
+    {
+      "name": "server",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/wsserver/main.go",
+      "args": [],
+      "output": "debug"
     }
   ]
 }

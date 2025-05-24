@@ -9,6 +9,14 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var (
+	IsUnexpectedCloseError = websocket.IsUnexpectedCloseError
+	CloseAbnormalClosure   = websocket.CloseAbnormalClosure
+	CloseGoingAway         = websocket.CloseGoingAway
+	PongMessage            = websocket.PongMessage
+	PingMessage            = websocket.PingMessage
+)
+
 type WSServer struct {
 	Port int
 }
@@ -28,14 +36,14 @@ func NewWSServer() *WSServer {
 }
 
 func (ws *WSServer) Serve() {
-	http.HandleFunc("/ws", ws.HandleWebSocet)
+	http.HandleFunc("/api", ws.HandleWebSocet)
 	port := ":" + strconv.Itoa(ws.Port)
-	log.Println("WebSocket server start on " + port)
+	log.Printf("WebSocket server start on %s \n", port)
+	log.Printf("Endpoint ws://127.0.0.1%s/ws\n", port)
 
 	if err := http.ListenAndServe(port, nil); err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
-
 }
 
 func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +57,7 @@ func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
 
 	conn.SetPongHandler(func(appData string) error {
 		log.Println("Received Ping")
-		err := conn.WriteControl(websocket.PongMessage, []byte(appData), time.Now().Add(time.Second))
+		err := conn.WriteControl(PongMessage, []byte(appData), time.Now().Add(time.Second))
 		if err != nil {
 			log.Println("Error sending Pong:", err)
 			return err
@@ -62,7 +70,7 @@ func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
 	for {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			if IsUnexpectedCloseError(err, CloseGoingAway, CloseAbnormalClosure) {
 				log.Printf("Error: %v", err)
 			}
 			break
