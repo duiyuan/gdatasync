@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gitbub.com/duiyuan/gdatasync/pkg/conf"
+	"gitbub.com/duiyuan/godemo/internal/datasync/pkg/conf"
 	"github.com/gorilla/websocket"
 )
 

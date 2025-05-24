@@ -1,4 +1,4 @@
-package main
+package datasync
 
 import (
 	"encoding/json"
@@ -8,8 +8,8 @@ import (
 	"sync"
 	"syscall"
 
-	. "gitbub.com/duiyuan/gdatasync/pkg"
-	subscriber "gitbub.com/duiyuan/gdatasync/pkg/subscriber"
+	"gitbub.com/duiyuan/godemo/internal/datasync/pkg"
+	"gitbub.com/duiyuan/godemo/internal/datasync/pkg/subscriber"
 )
 
 var txnSubscriber *subscriber.Subscriber
@@ -17,7 +17,7 @@ var memSubscriber *subscriber.Subscriber
 var wg sync.WaitGroup
 
 func handleTxMsg(msg []byte) {
-	txn := &TxnSum{}
+	txn := &pkg.TxnSum{}
 	str := string(msg)
 	if err := json.Unmarshal(msg, &txn); err != nil {
 		txnSubscriber.Logger.Fatal(err)
@@ -35,7 +35,7 @@ func handleMemMsg(msg []byte) {
 	memSubscriber.Logger.Println("f")
 }
 
-func main() {
+func Start() {
 	ch := make(chan bool, 2)
 	// txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
 	// txnSubscriber.SetHandler(handleTxMsg)
