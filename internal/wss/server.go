@@ -1,9 +1,11 @@
 package wss
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -17,8 +19,15 @@ var (
 	PingMessage            = websocket.PingMessage
 )
 
+type Request struct {
+	req string
+	arg map[string]interface{}
+}
+
 type WSServer struct {
-	Port int
+	Port            int
+	mempSubscribers []*websocket.Conn
+	mempSubLocker   sync.Mutex
 }
 
 var upgrader = websocket.Upgrader{
@@ -31,7 +40,9 @@ var upgrader = websocket.Upgrader{
 
 func NewWSServer() *WSServer {
 	return &WSServer{
-		Port: 9081,
+		Port:            9081,
+		mempSubscribers: []*websocket.Conn{},
+		mempSubLocker:   sync.Mutex{},
 	}
 }
 
@@ -53,7 +64,9 @@ func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	defer conn.Close()
+	defer func() {
+		conn.Close()
+	}()
 
 	conn.SetPongHandler(func(appData string) error {
 		log.Println("Received Ping")
@@ -66,6 +79,7 @@ func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
 	})
 
 	go ws.heartbeat(conn)
+	go ws.scheduleMempoolInsert()
 
 	for {
 		messageType, message, err := conn.ReadMessage()
@@ -99,6 +113,28 @@ func (ws *WSServer) heartbeat(conn *websocket.Conn) {
 				return
 			}
 			log.Println("Sent Ping")
+		}
+	}
+}
+
+func (ws *WSServer) scheduleMempoolInsert() {
+	ticker := time.NewTicker(time.Second * 5)
+
+	defer ticker.Stop()
+
+	for _, conn := range ws.mempSubscribers {
+		data := map[string]interface{}{
+			"Hash":      "123",
+			"Timestamp": time.Now().UnixMilli(),
+		}
+		msg, err := json.Marshal(data)
+		if err != nil {
+			log.Fatalln(err)
+			return
+		}
+		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+			log.Fatal(err)
+			return
 		}
 	}
 }
