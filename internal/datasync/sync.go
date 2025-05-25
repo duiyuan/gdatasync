@@ -44,13 +44,13 @@ func handleMemMsg(msg []byte) {
 
 func Start() {
 	ch := make(chan bool, 2)
-	// txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
-	// txnSubscriber.SetHandler(handleTxMsg)
-	// go txnSubscriber.Connect()
+	txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
+	txnSubscriber.SetHandler(handleTxMsg)
+	go txnSubscriber.Connect()
 
-	memSubscriber = subscriber.NewSubscriber("mempool_insert", ch)
-	memSubscriber.SetHandler(handleMemMsg)
-	go memSubscriber.Connect()
+	// memSubscriber = subscriber.NewSubscriber("mempool_insert", ch)
+	// memSubscriber.SetHandler(handleMemMsg)
+	// go memSubscriber.Connect()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)

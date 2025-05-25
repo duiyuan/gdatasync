@@ -12,9 +12,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const (
+var (
 	CloseMessage         = websocket.CloseMessage
 	CloseAbnormalClosure = websocket.CloseAbnormalClosure
+	FormatCloseMessage   = websocket.FormatCloseMessage
 )
 
 type Handler func(msg []byte)
@@ -98,7 +99,7 @@ func (t *Subscriber) Connect() {
 		t.Logger.Println("close server")
 		t.Finished <- true
 	}
-	if err = conn.WriteMessage(CloseMessage, websocket.FormatCloseMessage(CloseAbnormalClosure, "")); err != nil {
+	if err = conn.WriteMessage(CloseMessage, FormatCloseMessage(CloseAbnormalClosure, "")); err != nil {
 		t.Logger.Printf("fail to close websocket %v\n", err)
 	}
 

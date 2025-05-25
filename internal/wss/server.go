@@ -2,7 +2,6 @@ package wss
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -21,8 +20,8 @@ var (
 )
 
 type Request struct {
-	req string
-	arg map[string]interface{}
+	Req string                 `json:"req"`
+	Arg map[string]interface{} `json:"arg"`
 }
 
 type WSServer struct {
@@ -82,6 +81,8 @@ func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
 	go ws.heartbeat(conn)
 	go ws.scheduleMempoolInsert()
 
+	var firstMessage Request
+
 	for {
 		messageType, message, err := conn.ReadMessage()
 		if err != nil {
@@ -97,7 +98,24 @@ func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
 			log.Println("Write error:", err)
 			break
 		}
+
+		if err := json.Unmarshal(message, &firstMessage); err != nil {
+			log.Fatal(err)
+			continue
+		}
+
+		if firstMessage.Req == "subscribe.mempool_insert" {
+			ws.mempSubLocker.Lock()
+			ws.mempSubscribers = append(ws.mempSubscribers, conn)
+			ws.mempSubLocker.Unlock()
+		}
 	}
+	if firstMessage.Req == "mempool_insert" {
+		ws.mempSubLocker.Lock()
+		ws.mempSubscribers = append(ws.mempSubscribers, conn)
+		ws.mempSubLocker.Unlock()
+	}
+
 }
 
 func (ws *WSServer) heartbeat(conn *websocket.Conn) {
@@ -123,23 +141,25 @@ func (ws *WSServer) scheduleMempoolInsert() {
 
 	defer ticker.Stop()
 
-	for _, conn := range ws.mempSubscribers {
-		data := map[string]interface{}{
-			"Hash":      "123",
-			"Timestamp": time.Now().UnixMilli(),
-		}
-		msg, err := json.Marshal(data)
-		if err != nil {
-			log.Fatalln(err)
-			return
-		}
-		if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-			log.Fatal(err)
-			return
+	for {
+		select {
+		case <-ticker.C:
+			for _, conn := range ws.mempSubscribers {
+				data := map[string]interface{}{
+					"Hash":      "123",
+					"Timestamp": time.Now().UnixMilli(),
+				}
+				msg, err := json.Marshal(data)
+				if err != nil {
+					log.Fatalln(err)
+					return
+				}
+				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
+					log.Fatal(err)
+					return
+				}
+			}
 		}
 	}
-}
 
-func init() {
-	fmt.Println(1)
 }
