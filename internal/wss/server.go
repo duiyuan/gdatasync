@@ -2,6 +2,7 @@ package wss
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -137,4 +138,8 @@ func (ws *WSServer) scheduleMempoolInsert() {
 			return
 		}
 	}
+}
+
+func init() {
+	fmt.Println(1)
 }
