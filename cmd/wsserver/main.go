@@ -4,7 +4,7 @@ import (
 	"os"
 	"runtime"
 
-	"gitbub.com/duiyuan/godemo/internal/wss"
+	"github.com/duiyuan/godemo/internal/wss"
 )
 
 func main() {

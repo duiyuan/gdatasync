@@ -8,8 +8,8 @@ import (
 	"sync"
 	"syscall"
 
-	"gitbub.com/duiyuan/godemo/internal/datasync/pkg"
-	"gitbub.com/duiyuan/godemo/internal/datasync/pkg/subscriber"
+	"github.com/duiyuan/godemo/internal/datasync/pkg"
+	"github.com/duiyuan/godemo/internal/datasync/pkg/subscriber"
 )
 
 var txnSubscriber *subscriber.Subscriber
@@ -53,11 +53,11 @@ func handleComfdMemMsg(msg []byte) {
 	var data interface{}
 
 	if err := json.Unmarshal(msg, &data); err != nil {
-		memSubscriber.Logger.Fatal(err)
+		confdMemSubscriber.Logger.Fatal(err)
 		return
 	}
 
-	memSubscriber.Logger.Println(string(msg))
+	confdMemSubscriber.Logger.Println(string(msg))
 }
 
 func Start() {
@@ -97,7 +97,7 @@ func Start() {
 func Wait(wg *sync.WaitGroup) <-chan bool {
 	done := make(chan bool)
 
-	defer func() {
+	go func() {
 		wg.Wait()
 		done <- true
 	}()

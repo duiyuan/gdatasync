@@ -5,13 +5,11 @@ import (
 	"encoding/json"
 	"log"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"sync"
-	"syscall"
 
-	"gitbub.com/duiyuan/godemo/internal/datasync/pkg/conf"
-	"gitbub.com/duiyuan/godemo/internal/pkg/filesystem"
+	"github.com/duiyuan/godemo/internal/datasync/pkg/conf"
+	"github.com/duiyuan/godemo/internal/pkg/filesystem"
 	"github.com/gorilla/websocket"
 )
 
@@ -26,7 +24,7 @@ type Handler func(msg []byte)
 type Subscriber struct {
 	Subscription string
 	Logger       *log.Logger
-	HandleMsg    func(msg []byte)
+	HandleMsg    Handler
 	ctx          context.Context
 	Cancel       context.CancelFunc
 	wg           *sync.WaitGroup
@@ -57,6 +55,7 @@ func (t *Subscriber) Connect() {
 	logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("fail to create file %v, err: %v\n", t.Subscription, err)
+		t.wg.Done()
 		return
 	}
 	defer logFile.Close()
@@ -69,12 +68,10 @@ func (t *Subscriber) Connect() {
 		return
 	}
 	defer func() {
-		defer conn.Close()
+		conn.Close()
+		t.wg.Done()
 		t.Logger.Printf("%s websocket closed \n", t.Subscription)
 	}()
-
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	msg := map[string]interface{}{
 		"req": "subscribe." + t.Subscription,
@@ -92,6 +89,11 @@ func (t *Subscriber) Connect() {
 	done := make(chan bool)
 	go func() {
 		defer close(done)
+		defer func() {
+			if err := recover(); err != nil {
+				t.Logger.Fatalf("got goroutine panic: %v, recovery\n", err)
+			}
+		}()
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
@@ -107,7 +109,6 @@ func (t *Subscriber) Connect() {
 		t.Logger.Println("got context.done, now exit")
 	case <-done:
 		t.Logger.Println("close server")
-		t.wg.Done()
 	}
 	if err = conn.WriteMessage(CloseMessage, FormatCloseMessage(CloseAbnormalClosure, "")); err != nil {
 		t.Logger.Printf("fail to close websocket %v\n", err)

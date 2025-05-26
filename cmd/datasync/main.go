@@ -4,7 +4,7 @@ import (
 	"os"
 	"runtime"
 
-	"gitbub.com/duiyuan/godemo/internal/datasync"
+	"github.com/duiyuan/godemo/internal/datasync"
 )
 
 func main() {
