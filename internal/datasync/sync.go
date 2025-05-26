@@ -54,9 +54,9 @@ func handleComfdMemMsg(msg []byte) {
 
 func Start() {
 	ch := make(chan bool, 2)
-	// txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
-	// txnSubscriber.SetHandler(handleTxMsg)
-	// go txnSubscriber.Connect()
+	txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
+	txnSubscriber.SetHandler(handleTxMsg)
+	go txnSubscriber.Connect()
 
 	memSubscriber = subscriber.NewSubscriber("mempool_insert", ch)
 	memSubscriber.SetHandler(handleMemMsg)
@@ -69,9 +69,12 @@ func Start() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
 
-	<-interrupt
-	txnSubscriber.Cancel()
-	memSubscriber.Cancel()
-	confdMemSubscriber.Cancel()
-
+	select {
+	case <-interrupt:
+		txnSubscriber.Cancel()
+		memSubscriber.Cancel()
+		// confdMemSubscriber.Cancel()
+	case <-ch:
+		fmt.Println("all subscribe down")
+	}
 }

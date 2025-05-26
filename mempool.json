@@ -1,0 +1,30 @@
+{
+  "shard": [3, 2],
+  "txns": [
+    {
+      "Version": 64,
+      "Packing": "PK_NORMAL_TXN",
+      "Timestamp": 1748247096735,
+      "TTL": 1800000,
+      "ISN": 1,
+      "Size": 173,
+      "BuildNum": 1,
+      "GasOffered": 0,
+      "GasPrice": "100",
+      "Grouped": false,
+      "uTxnSize": 26,
+      "Mode": "ITM_FIRST_SIGNER|TGM_USER_SIGNED",
+      "Function": "core.coin.address.mint",
+      "Input": { "Amount": "100" },
+      "Signers": [
+        "2hh0gc3src6payx9z6wvgkcek0tef9qc8k7j8f312qszyeyp64mn8y9sxr:sm2"
+      ],
+      "TokenSupply": [],
+      "Hash": "fhm98fngtz4basp4h076drdz33nwwv7s76jk5bmww52ay2bxx2hg",
+      "State": "DUS_RECEIVED",
+      "ExecStage": "XTG_USER_INITIATED",
+      "ConfirmState": "TXN_READY",
+      "Runtime": { "ConfirmedBy": [] }
+    }
+  ]
+}
