@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"sync"
 	"syscall"
 
 	"gitbub.com/duiyuan/godemo/internal/datasync/pkg/conf"
@@ -28,16 +29,17 @@ type Subscriber struct {
 	HandleMsg    func(msg []byte)
 	ctx          context.Context
 	Cancel       context.CancelFunc
-	Finished     chan bool
+	wg           *sync.WaitGroup
 }
 
-func NewSubscriber(subscription string, finished chan bool) *Subscriber {
+func NewSubscriber(subscription string, wg *sync.WaitGroup) *Subscriber {
 	ctx, cancel := context.WithCancel(context.Background())
+	wg.Add(1)
 	return &Subscriber{
 		Subscription: subscription,
 		ctx:          ctx,
 		Cancel:       cancel,
-		Finished:     finished,
+		wg:           wg,
 	}
 }
 
@@ -105,7 +107,7 @@ func (t *Subscriber) Connect() {
 		t.Logger.Println("got context.done, now exit")
 	case <-done:
 		t.Logger.Println("close server")
-		t.Finished <- true
+		t.wg.Done()
 	}
 	if err = conn.WriteMessage(CloseMessage, FormatCloseMessage(CloseAbnormalClosure, "")); err != nil {
 		t.Logger.Printf("fail to close websocket %v\n", err)

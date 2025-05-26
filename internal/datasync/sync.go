@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"gitbub.com/duiyuan/godemo/internal/datasync/pkg"
@@ -48,30 +49,37 @@ func handleMemMsg(msg []byte) {
 	}
 }
 
-// func handleComfdMemMsg(msg []byte) {
-// 	var data interface{}
+func handleComfdMemMsg(msg []byte) {
+	var data interface{}
 
-// 	if err := json.Unmarshal(msg, &data); err != nil {
-// 		memSubscriber.Logger.Fatal(err)
-// 		return
-// 	}
+	if err := json.Unmarshal(msg, &data); err != nil {
+		memSubscriber.Logger.Fatal(err)
+		return
+	}
 
-// 	memSubscriber.Logger.Println(string(msg))
-// }
+	memSubscriber.Logger.Println(string(msg))
+}
 
 func Start() {
-	ch := make(chan bool, 2)
-	txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
-	txnSubscriber.SetHandler(handleTxMsg)
-	go txnSubscriber.Connect()
+	var wg sync.WaitGroup
 
-	memSubscriber = subscriber.NewSubscriber("mempool_insert", ch)
-	memSubscriber.SetHandler(handleMemMsg)
-	go memSubscriber.Connect()
+	go func() {
+		txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", &wg)
+		txnSubscriber.SetHandler(handleTxMsg)
+		txnSubscriber.Connect()
+	}()
 
-	// confdMemSubscriber = subscriber.NewSubscriber("mempool_confirm", ch)
-	// confdMemSubscriber.SetHandler(handleComfdMemMsg)
-	// go confdMemSubscriber.Connect()
+	go func() {
+		memSubscriber = subscriber.NewSubscriber("mempool_insert", &wg)
+		memSubscriber.SetHandler(handleMemMsg)
+		memSubscriber.Connect()
+	}()
+
+	go func() {
+		confdMemSubscriber = subscriber.NewSubscriber("mempool_confirm", &wg)
+		confdMemSubscriber.SetHandler(handleComfdMemMsg)
+		confdMemSubscriber.Connect()
+	}()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
@@ -80,8 +88,19 @@ func Start() {
 	case <-interrupt:
 		txnSubscriber.Cancel()
 		memSubscriber.Cancel()
-		// confdMemSubscriber.Cancel()
-	case <-ch:
-		fmt.Println("all subscribe down")
+		confdMemSubscriber.Cancel()
+	case <-Wait(&wg):
+		fmt.Println("all subscribers down")
 	}
+}
+
+func Wait(wg *sync.WaitGroup) <-chan bool {
+	done := make(chan bool)
+
+	defer func() {
+		wg.Wait()
+		done <- true
+	}()
+
+	return done
 }
