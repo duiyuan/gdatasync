@@ -20,7 +20,7 @@ func handleTxMsg(msg []byte) {
 	txn := &pkg.TxnSum{}
 	str := string(msg)
 	if err := json.Unmarshal(msg, &txn); err != nil {
-		txnSubscriber.Logger.Fatal(err)
+		txnSubscriber.Logger.Print(err)
 		return
 	}
 	fmt.Println(str)
@@ -35,7 +35,7 @@ func handleMemMsg(msg []byte) {
 	var data pkg.InsertMempoolRep
 
 	if err := json.Unmarshal(msg, &data); err != nil {
-		memSubscriber.Logger.Fatal(err)
+		memSubscriber.Logger.Print(err)
 		return
 	}
 
@@ -53,7 +53,7 @@ func handleComfdMemMsg(msg []byte) {
 	var data interface{}
 
 	if err := json.Unmarshal(msg, &data); err != nil {
-		confdMemSubscriber.Logger.Fatal(err)
+		confdMemSubscriber.Logger.Print(err)
 		return
 	}
 

@@ -6,7 +6,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"sync"
+	"time"
 
 	"github.com/duiyuan/godemo/internal/datasync/pkg/conf"
 	"github.com/duiyuan/godemo/internal/pkg/filesystem"
@@ -45,18 +47,20 @@ func (t *Subscriber) SetHandler(handler Handler) {
 	t.HandleMsg = handler
 }
 
-func (t *Subscriber) Connect() {
+func (t *Subscriber) Connect() error {
+	defer t.wg.Done()
+
 	dirname, err := filesystem.SureLogDir("datasync")
 	if err != nil {
-		log.Fatal("fail to make dirname for datasync log")
+		log.Print("fail to make dirname for datasync log")
+		return nil
 	}
 
 	logPath := filepath.Join(dirname, t.Subscription+".log")
 	logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Fatalf("fail to create file %v, err: %v\n", t.Subscription, err)
-		t.wg.Done()
-		return
+		log.Printf("fail to create file %v, err: %v\n", t.Subscription, err)
+		return err
 	}
 	defer logFile.Close()
 
@@ -64,12 +68,11 @@ func (t *Subscriber) Connect() {
 
 	conn, _, err := websocket.DefaultDialer.Dial(conf.WSServerUrl, nil)
 	if err != nil {
-		log.Fatalf("websocket connection error: %v\n", err)
-		return
+		log.Printf("websocket connection error: %v\n", err)
+		return err
 	}
 	defer func() {
 		conn.Close()
-		t.wg.Done()
 		t.Logger.Printf("%s websocket closed \n", t.Subscription)
 	}()
 
@@ -79,9 +82,12 @@ func (t *Subscriber) Connect() {
 	}
 	submsg, _ := json.Marshal(msg)
 
-	if err = conn.WriteMessage(websocket.TextMessage, submsg); err != nil {
-		t.Logger.Printf("fail to send subscribe message %v\n", err)
-		return
+	for i := 0; i < 3; i++ {
+		if err = conn.WriteMessage(websocket.TextMessage, submsg); err == nil {
+			break
+		}
+		t.Logger.Printf("retry sending subscribe message %d: %v\n", i+1, err)
+		time.Sleep(1 * time.Second)
 	}
 
 	t.Logger.Println("sent subscribe message")
@@ -91,7 +97,7 @@ func (t *Subscriber) Connect() {
 		defer close(done)
 		defer func() {
 			if err := recover(); err != nil {
-				t.Logger.Fatalf("got goroutine panic: %v, recovery\n", err)
+				t.Logger.Printf("goroutine panic recovered: %v\n%s", err, debug.Stack())
 			}
 		}()
 		for {
@@ -112,6 +118,9 @@ func (t *Subscriber) Connect() {
 	}
 	if err = conn.WriteMessage(CloseMessage, FormatCloseMessage(CloseAbnormalClosure, "")); err != nil {
 		t.Logger.Printf("fail to close websocket %v\n", err)
+		return err
 	}
+
+	return nil
 
 }

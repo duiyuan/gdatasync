@@ -53,7 +53,7 @@ func (ws *WSServer) Serve() {
 	log.Printf("Endpoint ws://127.0.0.1%s/ws\n", port)
 
 	if err := http.ListenAndServe(port, nil); err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		log.Print("ListenAndServe: ", err)
 	}
 }
 
@@ -100,7 +100,7 @@ func (ws *WSServer) HandleWebSocet(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := json.Unmarshal(message, &firstMessage); err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			continue
 		}
 
@@ -155,7 +155,7 @@ func (ws *WSServer) scheduleMempoolInsert() {
 					return
 				}
 				if err := conn.WriteMessage(websocket.TextMessage, msg); err != nil {
-					log.Fatal(err)
+					log.Print(err)
 					return
 				}
 			}
