@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 
 	"gitbub.com/duiyuan/godemo/internal/datasync/pkg"
@@ -14,7 +13,7 @@ import (
 
 var txnSubscriber *subscriber.Subscriber
 var memSubscriber *subscriber.Subscriber
-var wg sync.WaitGroup
+var confdMemSubscriber *subscriber.Subscriber
 
 func handleTxMsg(msg []byte) {
 	txn := &pkg.TxnSum{}
@@ -42,24 +41,37 @@ func handleMemMsg(msg []byte) {
 	memSubscriber.Logger.Println(string(msg))
 }
 
+func handleComfdMemMsg(msg []byte) {
+	var data interface{}
+
+	if err := json.Unmarshal(msg, &data); err != nil {
+		memSubscriber.Logger.Fatal(err)
+		return
+	}
+
+	memSubscriber.Logger.Println(string(msg))
+}
+
 func Start() {
 	ch := make(chan bool, 2)
-	txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
-	txnSubscriber.SetHandler(handleTxMsg)
-	go txnSubscriber.Connect()
+	// txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", ch)
+	// txnSubscriber.SetHandler(handleTxMsg)
+	// go txnSubscriber.Connect()
 
-	// memSubscriber = subscriber.NewSubscriber("mempool_insert", ch)
-	// memSubscriber.SetHandler(handleMemMsg)
-	// go memSubscriber.Connect()
+	memSubscriber = subscriber.NewSubscriber("mempool_insert", ch)
+	memSubscriber.SetHandler(handleMemMsg)
+	go memSubscriber.Connect()
+
+	// confdMemSubscriber = subscriber.NewSubscriber("mempool_confirm", ch)
+	// confdMemSubscriber.SetHandler(handleComfdMemMsg)
+	// go confdMemSubscriber.Connect()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
 
-	select {
-	case <-interrupt:
-		txnSubscriber.Cancel()
-		memSubscriber.Cancel()
-		return
-	}
+	<-interrupt
+	txnSubscriber.Cancel()
+	memSubscriber.Cancel()
+	confdMemSubscriber.Cancel()
 
 }
