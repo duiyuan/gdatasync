@@ -31,26 +31,33 @@ func handleTxMsg(msg []byte) {
 }
 
 func handleMemMsg(msg []byte) {
-	var data interface{}
+	var data pkg.InsertMempoolRep
 
 	if err := json.Unmarshal(msg, &data); err != nil {
 		memSubscriber.Logger.Fatal(err)
 		return
 	}
 
-	memSubscriber.Logger.Println(string(msg))
-}
-
-func handleComfdMemMsg(msg []byte) {
-	var data interface{}
-
-	if err := json.Unmarshal(msg, &data); err != nil {
-		memSubscriber.Logger.Fatal(err)
-		return
+	txns := data.Txns
+	for _, item := range txns {
+		Hash := item.Hash
+		time := item.Timestamp
+		funcName := item.Function
+		pack := item.Packing
+		memSubscriber.Logger.Printf("%s,%s,%s,%d\n", Hash, funcName, pack, time)
 	}
-
-	memSubscriber.Logger.Println(string(msg))
 }
+
+// func handleComfdMemMsg(msg []byte) {
+// 	var data interface{}
+
+// 	if err := json.Unmarshal(msg, &data); err != nil {
+// 		memSubscriber.Logger.Fatal(err)
+// 		return
+// 	}
+
+// 	memSubscriber.Logger.Println(string(msg))
+// }
 
 func Start() {
 	ch := make(chan bool, 2)

@@ -1,4 +1,4 @@
-package pkg
+package filesystem
 
 import (
 	"os"
@@ -13,17 +13,17 @@ func ExcuteDir() (string, error) {
 	return filepath.Dir(excuteFile), nil
 }
 
-func SureLogDir(dir string) (rst bool, err error) {
+func SureLogDir(dir string) (rst string, err error) {
 	excuteDir, err := ExcuteDir()
 
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
-	fullpath := filepath.Join(excuteDir, dir)
+	fullpath := filepath.Join(excuteDir, "logs", dir)
 	if err = os.MkdirAll(fullpath, 0755); err != nil {
-		return false, err
+		return "", err
 	}
 
-	return true, nil
+	return fullpath, nil
 }

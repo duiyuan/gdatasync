@@ -32,6 +32,6 @@ type MempoolTxn struct {
 }
 
 type InsertMempoolRep struct {
-	Shard []int16      `json:"shard"`
+	Shard []int        `json:"shard"`
 	Txns  []MempoolTxn `json:"txns"`
 }

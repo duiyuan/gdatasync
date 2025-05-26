@@ -6,9 +6,11 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"gitbub.com/duiyuan/godemo/internal/datasync/pkg/conf"
+	"gitbub.com/duiyuan/godemo/internal/pkg/filesystem"
 	"github.com/gorilla/websocket"
 )
 
@@ -44,7 +46,13 @@ func (t *Subscriber) SetHandler(handler Handler) {
 }
 
 func (t *Subscriber) Connect() {
-	logFile, err := os.OpenFile(t.Subscription+".log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	dirname, err := filesystem.SureLogDir("datasync")
+	if err != nil {
+		log.Fatal("fail to make dirname for datasync log")
+	}
+
+	logPath := filepath.Join(dirname, t.Subscription+".log")
+	logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("fail to create file %v, err: %v\n", t.Subscription, err)
 		return
@@ -60,7 +68,7 @@ func (t *Subscriber) Connect() {
 	}
 	defer func() {
 		defer conn.Close()
-		t.Logger.Println("websocket closed")
+		t.Logger.Printf("%s websocket closed \n", t.Subscription)
 	}()
 
 	interrupt := make(chan os.Signal, 1)
