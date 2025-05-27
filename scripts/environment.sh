@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
-PRJ="gdemo"
+export PRJ="gdemo"
 
-ROOT=$(dirname "${BASH_SOURCE[0]}")../.
-LOG=$HOME/$PROJECT/logs/
+export ROOT=$(dirname "${BASH_SOURCE[0]}")/..
+
+export LOG_PATH=$HOME/$PROJECT/logs
+export ETC_PATH=$HOME/$PROJECT/etc
 
 DATASYNC_WS_PROVIDER=${DATASYNC_WS_PROVIDER:-"ws://192.168.218.203:62222/api"}
 DATASYNC_HTTP_PROVIDER=${DATASYNC_HTTP_PROVIDER:-"http://192.168.218.203:62222/api"}
