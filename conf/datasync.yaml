@@ -1,0 +1,14 @@
+config:
+  websocket-provider: ${DATASYNC_WS_PROVIDER}
+  http-provider: ${DATASYNC_HTTP_PROVIDER}
+
+log:
+  name: datasync
+  development: true
+  level: debug
+  format: console
+  enable-color: true
+  disable-caller: false
+  disable-stacktrace: false
+  output-paths: ${LOG}/datasync.log,stdout
+  error-output-paths: ${LOG}/datasync.error.log
