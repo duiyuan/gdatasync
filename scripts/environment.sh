@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PROJECT="gdemo"
+PRJ="gdemo"
 
 ROOT=$(dirname "${BASH_SOURCE[0]}")../.
 LOG=$HOME/$PROJECT/logs/
