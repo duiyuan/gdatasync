@@ -61,9 +61,5 @@ func addConfigFlag(basename string, fs *pflag.FlagSet) {
 			os.Exit(1)
 		}
 
-		v1 := viper.GetString("provider.wss")
-		v2 := viper.GetString("provider.http")
-
-		fmt.Println(v1, v2)
 	})
 }

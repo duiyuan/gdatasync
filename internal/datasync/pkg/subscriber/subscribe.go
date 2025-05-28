@@ -49,7 +49,7 @@ func (t *Subscriber) SetHandler(handler Handler) {
 }
 
 func (t *Subscriber) Connect() error {
-	defer t.wg.Done()
+	// defer t.wg.Done()
 
 	dirname, err := filesystem.SureLogDir("datasync")
 	if err != nil {

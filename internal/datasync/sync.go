@@ -70,17 +70,17 @@ func Start(opts *options.Options) error {
 		txnSubscriber.Connect()
 	}()
 
-	go func() {
-		memSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_insert", &wg)
-		memSubscriber.SetHandler(handleMemMsg)
-		memSubscriber.Connect()
-	}()
+	// go func() {
+	// 	memSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_insert", &wg)
+	// 	memSubscriber.SetHandler(handleMemMsg)
+	// 	memSubscriber.Connect()
+	// }()
 
-	go func() {
-		confdMemSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_confirm", &wg)
-		confdMemSubscriber.SetHandler(handleComfdMemMsg)
-		confdMemSubscriber.Connect()
-	}()
+	// go func() {
+	// 	confdMemSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_confirm", &wg)
+	// 	confdMemSubscriber.SetHandler(handleComfdMemMsg)
+	// 	confdMemSubscriber.Connect()
+	// }()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
