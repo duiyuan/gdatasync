@@ -11,5 +11,6 @@ func main() {
 	if len(os.Getenv("GOMAXPROCS")) == 0 {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 	}
-	datasync.Start()
+
+	datasync.NewApp("godemo-datasync").Run()
 }

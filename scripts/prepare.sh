@@ -11,7 +11,6 @@ gen_conf_file() {
     local appname="$1"
    
     # shellcheck source=/dev/null
-    source "$ROOT/scripts/genconfig.sh" "${ROOT}/scripts/environment.sh" "$ROOT/conf/$appname.yaml" > "$HOME/${PRJ}/etc/$appname.yaml"
-
-    echo "=> mv $appname.yaml to ${HOME}/${PRJ}/etc/$appname.yaml"
+    source "$ROOT/scripts/genconfig.sh" "${ROOT}/scripts/environment.sh" "$ROOT/conf/$appname.yaml" > "$HOME/$PRJ/etc/$PRJ-$appname.yaml"
+    echo "=> success to make YAML for $appname, $appname.yaml in ${HOME}/$PRJ/etc/$PRJ-$appname.yaml"
 }

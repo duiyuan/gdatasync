@@ -1,6 +1,6 @@
-config:
-  websocket-provider: ${DATASYNC_WS_PROVIDER}
-  http-provider: ${DATASYNC_HTTP_PROVIDER}
+runtime:
+  wss: ${DATASYNC_WS_PROVIDER}
+  http: ${DATASYNC_HTTP_PROVIDER}
 
 log:
   name: datasync

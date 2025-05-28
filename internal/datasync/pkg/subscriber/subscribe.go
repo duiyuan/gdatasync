@@ -10,8 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/duiyuan/godemo/internal/datasync/pkg/conf"
-	"github.com/duiyuan/godemo/internal/pkg/filesystem"
+	"github.com/duiyuan/godemo/pkg/filesystem"
 	"github.com/gorilla/websocket"
 )
 
@@ -30,9 +29,10 @@ type Subscriber struct {
 	ctx          context.Context
 	Cancel       context.CancelFunc
 	wg           *sync.WaitGroup
+	endpoint     string
 }
 
-func NewSubscriber(subscription string, wg *sync.WaitGroup) *Subscriber {
+func NewSubscriber(endpoint string, subscription string, wg *sync.WaitGroup) *Subscriber {
 	ctx, cancel := context.WithCancel(context.Background())
 	wg.Add(1)
 	return &Subscriber{
@@ -40,6 +40,7 @@ func NewSubscriber(subscription string, wg *sync.WaitGroup) *Subscriber {
 		ctx:          ctx,
 		Cancel:       cancel,
 		wg:           wg,
+		endpoint:     endpoint,
 	}
 }
 
@@ -66,7 +67,7 @@ func (t *Subscriber) Connect() error {
 
 	t.Logger = log.New(logFile, "", log.LstdFlags)
 
-	conn, _, err := websocket.DefaultDialer.Dial(conf.WSServerUrl, nil)
+	conn, _, err := websocket.DefaultDialer.Dial(t.endpoint, nil)
 	if err != nil {
 		log.Printf("websocket connection error: %v\n", err)
 		return err

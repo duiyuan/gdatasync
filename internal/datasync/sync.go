@@ -8,6 +8,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/duiyuan/godemo/internal/datasync/options"
 	"github.com/duiyuan/godemo/internal/datasync/pkg"
 	"github.com/duiyuan/godemo/internal/datasync/pkg/subscriber"
 )
@@ -60,23 +61,23 @@ func handleComfdMemMsg(msg []byte) {
 	confdMemSubscriber.Logger.Println(string(msg))
 }
 
-func Start() {
+func Start(opts *options.Options) error {
 	var wg sync.WaitGroup
 
 	go func() {
-		txnSubscriber = subscriber.NewSubscriber("txn_confirm_on_head", &wg)
+		txnSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "txn_confirm_on_head", &wg)
 		txnSubscriber.SetHandler(handleTxMsg)
 		txnSubscriber.Connect()
 	}()
 
 	go func() {
-		memSubscriber = subscriber.NewSubscriber("mempool_insert", &wg)
+		memSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_insert", &wg)
 		memSubscriber.SetHandler(handleMemMsg)
 		memSubscriber.Connect()
 	}()
 
 	go func() {
-		confdMemSubscriber = subscriber.NewSubscriber("mempool_confirm", &wg)
+		confdMemSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_confirm", &wg)
 		confdMemSubscriber.SetHandler(handleComfdMemMsg)
 		confdMemSubscriber.Connect()
 	}()
@@ -92,6 +93,8 @@ func Start() {
 	case <-Wait(&wg):
 		fmt.Println("all subscribers down")
 	}
+
+	return nil
 }
 
 func Wait(wg *sync.WaitGroup) <-chan bool {

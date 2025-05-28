@@ -24,7 +24,7 @@ func init() {
 }
 
 // addConfigFlag adds flags for a specific server to the specified FlagSet object.
-func AddConfigFlag(basename string, fs *pflag.FlagSet) {
+func addConfigFlag(basename string, fs *pflag.FlagSet) {
 	fs.AddFlag(pflag.Lookup(configFlagName))
 
 	viper.AutomaticEnv()
@@ -47,9 +47,9 @@ func AddConfigFlag(basename string, fs *pflag.FlagSet) {
 				viper.AddConfigPath(p1)
 				viper.AddConfigPath(p2)
 
-				log.Printf("Add config path: %s\n", p0)
-				log.Printf("Add config path: %s\n", p1)
-				log.Printf("Add config path: %s\n", p2)
+				log.Printf("Add config path: %s \n", p0)
+				log.Printf("Add config path: %s \n", p1)
+				log.Printf("Add config path: %s \n", p2)
 
 			}
 
@@ -60,5 +60,10 @@ func AddConfigFlag(basename string, fs *pflag.FlagSet) {
 			_, _ = fmt.Fprintf(os.Stderr, "Error: failed to read configuration file(%s): %v\n", cfgFile, err)
 			os.Exit(1)
 		}
+
+		v1 := viper.GetString("provider.wss")
+		v2 := viper.GetString("provider.http")
+
+		fmt.Println(v1, v2)
 	})
 }
