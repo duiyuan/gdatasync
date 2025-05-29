@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "dev",
+      "name": "datasync-dev",
       "type": "go",
       "request": "launch",
       "mode": "auto",
@@ -14,7 +14,7 @@
       "output": "debug"
     },
     {
-      "name": "server",
+      "name": "datasync-server",
       "type": "go",
       "request": "launch",
       "mode": "auto",

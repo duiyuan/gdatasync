@@ -11,6 +11,7 @@ import (
 	"github.com/duiyuan/godemo/internal/datasync/options"
 	"github.com/duiyuan/godemo/internal/datasync/pkg"
 	"github.com/duiyuan/godemo/internal/datasync/pkg/subscriber"
+	"github.com/spf13/viper"
 )
 
 var txnSubscriber *subscriber.Subscriber
@@ -61,26 +62,25 @@ func handleComfdMemMsg(msg []byte) {
 	confdMemSubscriber.Logger.Println(string(msg))
 }
 
+func subscribe(endpoint string, tunnel string, wg *sync.WaitGroup, handler subscriber.Handler) *subscriber.Subscriber {
+	wg.Add(1)
+	sub := subscriber.NewSubscriber(endpoint, tunnel, wg)
+	sub.SetHandler(handler)
+	go sub.Connect()
+	return sub
+}
+
 func Start(opts *options.Options) error {
 	var wg sync.WaitGroup
 
-	go func() {
-		txnSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "txn_confirm_on_head", &wg)
-		txnSubscriber.SetHandler(handleTxMsg)
-		txnSubscriber.Connect()
-	}()
+	v1 := viper.GetStringSlice("log.output-paths")
+	v2 := viper.GetStringSlice("log.error-output-paths")
 
-	// go func() {
-	// 	memSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_insert", &wg)
-	// 	memSubscriber.SetHandler(handleMemMsg)
-	// 	memSubscriber.Connect()
-	// }()
+	fmt.Println(v1, v2)
 
-	// go func() {
-	// 	confdMemSubscriber = subscriber.NewSubscriber(opts.RuntimeOption.WSS, "mempool_confirm", &wg)
-	// 	confdMemSubscriber.SetHandler(handleComfdMemMsg)
-	// 	confdMemSubscriber.Connect()
-	// }()
+	txnSubscriber = subscribe(opts.RuntimeOption.WSS, "txn_confirm_on_head", &wg, handleTxMsg)
+	memSubscriber = subscribe(opts.RuntimeOption.WSS, "mempool_insert", &wg, handleMemMsg)
+	confdMemSubscriber = subscribe(opts.RuntimeOption.WSS, "mempool_confirm", &wg, handleComfdMemMsg)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
