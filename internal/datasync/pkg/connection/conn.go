@@ -3,7 +3,6 @@ package connection
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"runtime/debug"
 	"sync"
 	"time"
@@ -65,12 +64,12 @@ func (t *SubscriberConn) Connect() error {
 
 	Subscriberconn, _, err := websocket.DefaultDialer.Dial(t.endpoint, nil)
 	if err != nil {
-		log.Printf("websocket Subscriberconnection error: %v\n", err)
+		t.Logger.Infof("websocket Subscriberconnection error: %v\n", err)
 		return err
 	}
 	defer func() {
 		Subscriberconn.Close()
-		t.Logger.Printf("%s websocket closed \n", t.Subscription)
+		t.Logger.Infof("%s websocket closed \n", t.Subscription)
 	}()
 
 	msg := map[string]interface{}{

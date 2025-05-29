@@ -32,6 +32,6 @@ go.work.sum
 *.dll
 *.so
 
-debug
+debug*
 gdatasync
 godemo

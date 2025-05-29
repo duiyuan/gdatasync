@@ -11,7 +11,10 @@
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/datasync/main.go",
       "args": [],
-      "output": "debug2"
+      "output": "debug2",
+      "env": {
+        "DATASYNC_WS_PROVIDER": "ws://127.0.0.1:9081/api"
+      }
     },
     {
       "name": "datasync-server",
