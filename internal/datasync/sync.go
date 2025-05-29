@@ -20,14 +20,14 @@ var confdMemSubscriber *connection.SubscriberConn
 
 func handleTxMsg(msg []byte) {
 	txn := &pkg.TxnSum{}
-	str := string(msg)
+	// str := string(msg)
 	if err := json.Unmarshal(msg, &txn); err != nil {
-		txnSubscriber.Logger.Print(err)
+		txnSubscriber.Logger.Error(err)
 		return
 	}
-	fmt.Println(str)
+	// fmt.Println(str)
 	hash, ts, function, height := txn.Hash, txn.Timestamp, txn.Function, txn.Height
-	txnSubscriber.Logger.Printf("%s,%s,%d,%d", hash, function, height, ts)
+	txnSubscriber.Logger.Infof("%s,%s,%d,%d\n", hash, function, height, ts)
 }
 
 func handleMemMsg(msg []byte) {
@@ -60,8 +60,8 @@ func Start(opts *options.Options) error {
 	var wg sync.WaitGroup
 
 	txnSubscriber = subscriber.MakeSubscriber(opts, "txn_confirm_on_head", &wg, handleTxMsg)
-	memSubscriber = subscriber.MakeSubscriber(opts, "mempool_insert", &wg, handleMemMsg)
-	confdMemSubscriber = subscriber.MakeSubscriber(opts, "mempool_confirm", &wg, handleComfdMemMsg)
+	// memSubscriber = subscriber.MakeSubscriber(opts, "mempool_insert", &wg, handleMemMsg)
+	// confdMemSubscriber = subscriber.MakeSubscriber(opts, "mempool_confirm", &wg, handleComfdMemMsg)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)

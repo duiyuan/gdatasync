@@ -4,13 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"log"
-	"os"
-	"path/filepath"
 	"runtime/debug"
 	"sync"
 	"time"
 
-	"github.com/duiyuan/godemo/pkg/filesystem"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
@@ -51,19 +48,20 @@ func (t *SubscriberConn) SetHandler(handler Handler) {
 }
 
 func (t *SubscriberConn) Connect() error {
-	dirname, err := filesystem.SureLogDir("datasync")
-	if err != nil {
-		log.Print("fail to make dirname for datasync log")
-		return nil
-	}
+	defer t.wg.Done()
+	// dirname, err := filesystem.SureLogDir("datasync")
+	// if err != nil {
+	// 	log.Print("fail to make dirname for datasync log")
+	// 	return nil
+	// }
 
-	logPath := filepath.Join(dirname, t.Subscription+".log")
-	logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Printf("fail to create file %v, err: %v\n", t.Subscription, err)
-		return err
-	}
-	defer logFile.Close()
+	// logPath := filepath.Join(dirname, t.Subscription+".log")
+	// logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// if err != nil {
+	// 	log.Printf("fail to create file %v, err: %v\n", t.Subscription, err)
+	// 	return err
+	// }
+	// defer logFile.Close()
 
 	Subscriberconn, _, err := websocket.DefaultDialer.Dial(t.endpoint, nil)
 	if err != nil {
@@ -76,7 +74,7 @@ func (t *SubscriberConn) Connect() error {
 	}()
 
 	msg := map[string]interface{}{
-		"req": "SubscriberConn." + t.Subscription,
+		"req": "subscribe." + t.Subscription,
 		"arg": map[string]interface{}{},
 	}
 	submsg, _ := json.Marshal(msg)
