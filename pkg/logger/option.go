@@ -9,12 +9,17 @@ import (
 )
 
 type Options struct {
-	OutputPaths    []string `json:"output_paths" mapstructure:"output_paths"`
-	ErrOutputPaths []string `json:"error_output_paths" mapstructure:"error_output_paths"`
+	Level          string   `json:"level" mapstructure:"level"`
+	OutputPaths    []string `json:"output-paths" mapstructure:"output-paths"`
+	ErrOutputPaths []string `json:"error-output-paths" mapstructure:"error-output-paths"`
 }
 
-func NewOption() *Options {
-	return &Options{}
+func NewOptions() *Options {
+	return &Options{
+		Level: "",
+		// OutputPaths:    []string{},
+		// ErrOutputPaths: []string{},
+	}
 }
 
 func (o *Options) AddFlags(fs *pflag.FlagSet) {
@@ -22,6 +27,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 		return
 	}
 
+	fs.StringVar(&o.Level, "log.level", o.Level, "level of logs")
 	fs.StringSliceVar(&o.OutputPaths, "log.output-paths", o.OutputPaths, "output paths of log")
 	fs.StringSliceVar(&o.ErrOutputPaths, "log.error-output-paths", o.ErrOutputPaths, "error output paths of log")
 }

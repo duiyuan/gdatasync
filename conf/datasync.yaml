@@ -10,5 +10,5 @@ log:
   enable-color: true
   disable-caller: false
   disable-stacktrace: false
-  output-paths: ${LOG_PATH}/datasync.log,stdout
-  error-output-paths: ${LOG_PATH}/datasync.error.log
+  output-paths: ${LOG_PATH}/datasync/<tunnel>.log,stdout
+  error-output-paths: ${LOG_PATH}/datasync/<tunnel>.error.log,stderr

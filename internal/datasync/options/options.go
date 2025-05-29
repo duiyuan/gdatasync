@@ -6,20 +6,20 @@ import (
 )
 
 type Options struct {
-	RuntimeOption *RuntimeOption  `json:"runtime" mapstructure:"runtime"`
-	LogOption     *logger.Options `json:"log" mapstruction:"log"`
+	RuntimeOptions *RuntimeOption  `json:"runtime" mapstructure:"runtime"`
+	Log            *logger.Options `json:"log" mapstructure:"log"`
 }
 
 func NewOption() *Options {
 	return &Options{
-		RuntimeOption: NewRuntimeOption(),
-		LogOption:     logger.NewOption(),
+		RuntimeOptions: NewRuntimeOption(),
+		Log:            logger.NewOptions(),
 	}
 }
 
 func (o *Options) Flags() (fss flag.NamedFlagSets) {
-	o.RuntimeOption.AddFlags(fss.FlagSet("runtime"))
-	o.LogOption.AddFlags(fss.FlagSet("log"))
+	o.RuntimeOptions.AddFlags(fss.FlagSet("runtime"))
+	o.Log.AddFlags(fss.FlagSet("log"))
 	return
 }
 

@@ -10,13 +10,13 @@ import (
 
 	"github.com/duiyuan/godemo/internal/datasync/options"
 	"github.com/duiyuan/godemo/internal/datasync/pkg"
+	"github.com/duiyuan/godemo/internal/datasync/pkg/connection"
 	"github.com/duiyuan/godemo/internal/datasync/pkg/subscriber"
-	"github.com/spf13/viper"
 )
 
-var txnSubscriber *subscriber.Subscriber
-var memSubscriber *subscriber.Subscriber
-var confdMemSubscriber *subscriber.Subscriber
+var txnSubscriber *connection.SubscriberConn
+var memSubscriber *connection.SubscriberConn
+var confdMemSubscriber *connection.SubscriberConn
 
 func handleTxMsg(msg []byte) {
 	txn := &pkg.TxnSum{}
@@ -26,10 +26,7 @@ func handleTxMsg(msg []byte) {
 		return
 	}
 	fmt.Println(str)
-	hash := txn.Hash
-	function := txn.Function
-	height := txn.Height
-	ts := txn.Timestamp
+	hash, ts, function, height := txn.Hash, txn.Timestamp, txn.Function, txn.Height
 	txnSubscriber.Logger.Printf("%s,%s,%d,%d", hash, function, height, ts)
 }
 
@@ -43,10 +40,7 @@ func handleMemMsg(msg []byte) {
 
 	txns := data.Txns
 	for _, item := range txns {
-		Hash := item.Hash
-		time := item.Timestamp
-		funcName := item.Function
-		pack := item.Packing
+		Hash, time, funcName, pack := item.Hash, item.Timestamp, item.Function, item.Packing
 		memSubscriber.Logger.Printf("%s,%s,%s,%d\n", Hash, funcName, pack, time)
 	}
 }
@@ -62,25 +56,12 @@ func handleComfdMemMsg(msg []byte) {
 	confdMemSubscriber.Logger.Println(string(msg))
 }
 
-func subscribe(endpoint string, tunnel string, wg *sync.WaitGroup, handler subscriber.Handler) *subscriber.Subscriber {
-	wg.Add(1)
-	sub := subscriber.NewSubscriber(endpoint, tunnel, wg)
-	sub.SetHandler(handler)
-	go sub.Connect()
-	return sub
-}
-
 func Start(opts *options.Options) error {
 	var wg sync.WaitGroup
 
-	v1 := viper.GetStringSlice("log.output-paths")
-	v2 := viper.GetStringSlice("log.error-output-paths")
-
-	fmt.Println(v1, v2)
-
-	txnSubscriber = subscribe(opts.RuntimeOption.WSS, "txn_confirm_on_head", &wg, handleTxMsg)
-	memSubscriber = subscribe(opts.RuntimeOption.WSS, "mempool_insert", &wg, handleMemMsg)
-	confdMemSubscriber = subscribe(opts.RuntimeOption.WSS, "mempool_confirm", &wg, handleComfdMemMsg)
+	txnSubscriber = subscriber.MakeSubscriber(opts, "txn_confirm_on_head", &wg, handleTxMsg)
+	memSubscriber = subscriber.MakeSubscriber(opts, "mempool_insert", &wg, handleMemMsg)
+	confdMemSubscriber = subscriber.MakeSubscriber(opts, "mempool_confirm", &wg, handleComfdMemMsg)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)
