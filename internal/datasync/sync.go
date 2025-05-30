@@ -20,14 +20,12 @@ var confdMemSubscriber *connection.SubscriberConn
 
 func handleTxMsg(msg []byte) {
 	txn := &pkg.TxnSum{}
-	// str := string(msg)
 	if err := json.Unmarshal(msg, &txn); err != nil {
 		txnSubscriber.Logger.Error(err)
 		return
 	}
-	// fmt.Println(str)
 	hash, ts, function, height := txn.Hash, txn.Timestamp, txn.Function, txn.Height
-	txnSubscriber.Logger.Infof("%s,%s,%d,%d\n", hash, function, height, ts)
+	txnSubscriber.Logger.Infof("%s,%s,%d,%d", hash, function, height, ts)
 }
 
 func handleMemMsg(msg []byte) {
@@ -41,27 +39,31 @@ func handleMemMsg(msg []byte) {
 	txns := data.Txns
 	for _, item := range txns {
 		Hash, time, funcName, pack := item.Hash, item.Timestamp, item.Function, item.Packing
-		memSubscriber.Logger.Printf("%s,%s,%s,%d\n", Hash, funcName, pack, time)
+		memSubscriber.Logger.Printf("%s,%s,%s,%d", Hash, funcName, pack, time)
 	}
 }
 
 func handleComfdMemMsg(msg []byte) {
-	var data interface{}
+	var data pkg.ConfirmedTxDataResp
 
 	if err := json.Unmarshal(msg, &data); err != nil {
 		confdMemSubscriber.Logger.Print(err)
 		return
 	}
 
-	confdMemSubscriber.Logger.Println(string(msg))
+	txns := data.Txns
+	for _, item := range txns {
+		hash, time, funcName, pack := item.Hash, item.Timestamp, item.Function, item.Packing
+		confdMemSubscriber.Logger.Printf("%s,%s,%s,%d", hash, funcName, pack, time)
+	}
 }
 
 func Start(opts *options.Options) error {
 	var wg sync.WaitGroup
 
 	txnSubscriber = subscriber.MakeSubscriber(opts, "txn_confirm_on_head", &wg, handleTxMsg)
-	// memSubscriber = subscriber.MakeSubscriber(opts, "mempool_insert", &wg, handleMemMsg)
-	// confdMemSubscriber = subscriber.MakeSubscriber(opts, "mempool_confirm", &wg, handleComfdMemMsg)
+	memSubscriber = subscriber.MakeSubscriber(opts, "mempool_insert", &wg, handleMemMsg)
+	confdMemSubscriber = subscriber.MakeSubscriber(opts, "mempool_confirm", &wg, handleComfdMemMsg)
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, syscall.SIGTERM, syscall.SIGINT)

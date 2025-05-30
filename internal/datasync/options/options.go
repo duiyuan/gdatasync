@@ -24,7 +24,7 @@ func (o *Options) Flags() (fss flag.NamedFlagSets) {
 }
 
 func (o *Options) Complete() error {
-	return nil
+	return o.Log.Complete()
 }
 
 func (o *Options) Validate() []error {

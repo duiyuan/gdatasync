@@ -57,19 +57,19 @@ func (t *SubscriberConn) Connect() error {
 	// logPath := filepath.Join(dirname, t.Subscription+".log")
 	// logFile, err := os.OpenFile(logPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	// if err != nil {
-	// 	log.Printf("fail to create file %v, err: %v\n", t.Subscription, err)
+	// 	log.Printf("fail to create file %v, err: %v", t.Subscription, err)
 	// 	return err
 	// }
 	// defer logFile.Close()
 
 	Subscriberconn, _, err := websocket.DefaultDialer.Dial(t.endpoint, nil)
 	if err != nil {
-		t.Logger.Infof("websocket Subscriberconnection error: %v\n", err)
+		t.Logger.Infof("websocket Subscriberconnection error: %v", err)
 		return err
 	}
 	defer func() {
 		Subscriberconn.Close()
-		t.Logger.Infof("%s websocket closed \n", t.Subscription)
+		t.Logger.Infof("%s websocket closed", t.Subscription)
 	}()
 
 	msg := map[string]interface{}{
@@ -82,7 +82,7 @@ func (t *SubscriberConn) Connect() error {
 		if err = Subscriberconn.WriteMessage(websocket.TextMessage, submsg); err == nil {
 			break
 		}
-		t.Logger.Printf("retry sending subscribe message %d: %v\n", i+1, err)
+		t.Logger.Printf("retry sending subscribe message %d: %v", i+1, err)
 		time.Sleep(1 * time.Second)
 	}
 
@@ -99,7 +99,7 @@ func (t *SubscriberConn) Connect() error {
 		for {
 			_, message, err := Subscriberconn.ReadMessage()
 			if err != nil {
-				t.Logger.Printf("received message err: %v \n", err)
+				t.Logger.Printf("received message err: %v ", err)
 				return
 			}
 			t.HandleMsg(message)
@@ -113,7 +113,7 @@ func (t *SubscriberConn) Connect() error {
 		t.Logger.Println("close server")
 	}
 	if err = Subscriberconn.WriteMessage(CloseMessage, FormatCloseMessage(CloseAbnormalClosure, "")); err != nil {
-		t.Logger.Printf("fail to close websocket %v\n", err)
+		t.Logger.Printf("fail to close websocket %v", err)
 		return err
 	}
 

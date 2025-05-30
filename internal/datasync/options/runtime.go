@@ -7,9 +7,8 @@ import (
 )
 
 type RuntimeOption struct {
-	WSS         string   `json:"wss" mapstructure:"wss"`
-	Http        string   `json:"http" mapstructure:"http"`
-	OutputPaths []string `json:"output-paths" mapstructure:"output-paths"`
+	WSS  string `json:"wss" mapstructure:"wss"`
+	Http string `json:"http" mapstructure:"http"`
 }
 
 func NewRuntimeOption() *RuntimeOption {
@@ -23,7 +22,6 @@ func (s *RuntimeOption) AddFlags(fs *pflag.FlagSet) {
 
 	fs.StringVar(&s.WSS, "runtime.wss", s.WSS, "Websocket endpoint")
 	fs.StringVar(&s.Http, "runtime.http", s.Http, "http endpoint")
-	fs.StringSliceVar(&s.OutputPaths, "runtime.output-paths", s.OutputPaths, "http endpoint")
 }
 
 func (s *RuntimeOption) Validate() []error {

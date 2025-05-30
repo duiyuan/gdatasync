@@ -1,0 +1,43 @@
+{
+  "shard": [65535, 2],
+  "txns": [
+    {
+      "Version": 64,
+      "Packing": "PK_RELAY_SINGLE",
+      "Timestamp": 1748586117372,
+      "RSN": 1,
+      "Proof": {
+        "Height": 1072,
+        "Shard": [3, 2],
+        "Position": [0, 1]
+      },
+      "Size": 186,
+      "BuildNum": 1,
+      "GasOffered": 0,
+      "GasPrice": "100",
+      "Grouped": false,
+      "uTxnSize": 97,
+      "Mode": "ITM_GLOBAL|TGM_RELAY|TMF_EMIITTER_EMBEDDED",
+      "Initiator": "2hh0gc3src6payx9z6wvgkcek0tef9qc8k7j8f312qszyeyp64mn8y9sxr:sm2",
+      "OrigTxHash": "mgp6zbfct0zextd3aspkd1bngbm5gmg1ntzmark9xg02w9s1nkag",
+      "OrigExecIdx": 0,
+      "Function": "core.coin.global.minted",
+      "Input": {
+        "Amount": "100"
+      },
+      "Invocation": {
+        "Status": "IVKRET_SUCCESS",
+        "Return": [0, 0],
+        "CoinDelta": "0",
+        "GasFee": "0"
+      },
+      "Hash": "9wnq8bn4y3s7gmercmyenbvh1hzset445v2nzfbe1ze56whdb870",
+      "State": "DUS_RECEIVED",
+      "ExecStage": "XTG_INBOUND_RELAY",
+      "ConfirmState": "TXN_READY",
+      "Runtime": {
+        "ConfirmedBy": []
+      }
+    }
+  ]
+}

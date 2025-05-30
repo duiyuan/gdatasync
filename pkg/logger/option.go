@@ -16,9 +16,9 @@ type Options struct {
 
 func NewOptions() *Options {
 	return &Options{
-		Level: "",
-		// OutputPaths:    []string{},
-		// ErrOutputPaths: []string{},
+		Level:          "",
+		OutputPaths:    []string{},
+		ErrOutputPaths: []string{},
 	}
 }
 

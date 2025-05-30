@@ -13,7 +13,7 @@
       "args": [],
       "output": "debug2",
       "env": {
-        "DATASYNC_WS_PROVIDER": "ws://127.0.0.1:9081/api"
+        "DATASYNC_WS_PROVIDER": "ws://127.0.0.2:62222/api"
       }
     },
     {
