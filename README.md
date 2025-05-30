@@ -3,14 +3,18 @@
 ### Prerequisites
 
 - Go 1.22.3 installed
--
-- Install dependency
+
+#### Install dependency
 
 ```
 $ go mod tidy
 ```
 
-Dynamically generate configuration files and copy them to `$HOME/gotest/etc/gotest-<app>.yaml`. Will apply to all app in this repo.
+#### Configuration
+
+- Set environment variables, according to `scripts/environment.sh`
+
+- Dynamically generate configuration files and copy them to `$HOME/gotest/etc/gotest-<app>.yaml`. Will apply to all app in this repo.
 
 ```
 $ make init
@@ -42,5 +46,3 @@ There are something `make start_datasync` will do:
 - `make init`
 - Build binary `datasync`(or `datasync.exe`), put it into `$HOME/gotest/install`
 - Run `datasync`(or `datasync.exe` )
-
-## ...
