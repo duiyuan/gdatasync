@@ -1,4 +1,4 @@
-module github.com/duiyuan/godemo
+module github.com/duiyuan/gotest
 
 go 1.22.3
 

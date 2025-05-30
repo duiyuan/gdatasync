@@ -4,7 +4,7 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/duiyuan/godemo/internal/datasync"
+	"github.com/duiyuan/gotest/internal/datasync"
 )
 
 func main() {
@@ -12,5 +12,5 @@ func main() {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 	}
 
-	datasync.NewApp("godemo-datasync").Run()
+	datasync.NewApp("gotest-datasync").Run()
 }

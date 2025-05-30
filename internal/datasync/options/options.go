@@ -1,7 +1,7 @@
 package options
 
 import (
-	"github.com/duiyuan/godemo/pkg/logger"
+	"github.com/duiyuan/gotest/pkg/logger"
 	"github.com/marmotedu/component-base/pkg/cli/flag"
 )
 

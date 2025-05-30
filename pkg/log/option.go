@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/duiyuan/godemo/pkg/util"
+	"github.com/duiyuan/gotest/pkg/util"
 	"github.com/marmotedu/component-base/pkg/json"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-export PRJ="godemo"
+export PRJ="gotest"
 
 export ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 export LOG_PATH=$HOME/$PRJ/logs

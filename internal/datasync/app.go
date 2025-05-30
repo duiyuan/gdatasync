@@ -1,8 +1,8 @@
 package datasync
 
 import (
-	"github.com/duiyuan/godemo/internal/datasync/options"
-	"github.com/duiyuan/godemo/pkg/app"
+	"github.com/duiyuan/gotest/internal/datasync/options"
+	"github.com/duiyuan/gotest/pkg/app"
 )
 
 const desc = "datasync"

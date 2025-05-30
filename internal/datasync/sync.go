@@ -8,10 +8,10 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/duiyuan/godemo/internal/datasync/options"
-	"github.com/duiyuan/godemo/internal/datasync/pkg"
-	"github.com/duiyuan/godemo/internal/datasync/pkg/connection"
-	"github.com/duiyuan/godemo/internal/datasync/pkg/subscriber"
+	"github.com/duiyuan/gotest/internal/datasync/options"
+	"github.com/duiyuan/gotest/internal/datasync/pkg"
+	"github.com/duiyuan/gotest/internal/datasync/pkg/connection"
+	"github.com/duiyuan/gotest/internal/datasync/pkg/subscriber"
 )
 
 var txnSubscriber *connection.SubscriberConn

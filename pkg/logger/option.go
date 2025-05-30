@@ -4,7 +4,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/duiyuan/godemo/pkg/util"
+	"github.com/duiyuan/gotest/pkg/util"
 	"github.com/spf13/pflag"
 )
 

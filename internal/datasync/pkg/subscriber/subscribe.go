@@ -4,9 +4,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/duiyuan/godemo/internal/datasync/options"
-	"github.com/duiyuan/godemo/internal/datasync/pkg/connection"
-	"github.com/duiyuan/godemo/pkg/logger"
+	"github.com/duiyuan/gotest/internal/datasync/options"
+	"github.com/duiyuan/gotest/internal/datasync/pkg/connection"
+	"github.com/duiyuan/gotest/pkg/logger"
 )
 
 func MakeSubscriber(opts *options.Options, tunnel string, wg *sync.WaitGroup, handler connection.Handler) *connection.SubscriberConn {

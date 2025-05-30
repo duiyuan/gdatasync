@@ -34,4 +34,4 @@ go.work.sum
 
 debug*
 gdatasync
-godemo
+gotest
